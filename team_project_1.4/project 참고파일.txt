@@ -1,0 +1,89 @@
+vo(Value Object)
+
+MemberVO 
+회원정보 
+회원가입 - 아이디, 비밀번호, 비밀번호 재확인 이름, 생년월일, 휴대전화, 주소 
+private int u_no; // 회원번호 
+private String u_id; // 아이디
+private String u_pw; // 비밀번호
+private String u_phone; // 전화번호
+private String u_birth; // 생년월일
+private String u_name; // 이름
+private String u_addr; // 주소
+private String u_addr_detail; // 상세 주소
+private String u_addr_post; // 우편 번호
+private int u_point; // 유저 포인트
+private String u_info; // 개인 정보 동의
+private Date u_date; // 가입일
+private Date u_visit_date; // 마지막 방문일
+private String u_withdraw; // 탈퇴일
+
+
+LoginDTO
+로그인 관련 정보
+로그인 - 아이디, 비밀번호, 로그인 정보 유지
+private String uid; // 아이디
+private String upw; // 비밀번호
+private boolean userCookie;  // 로그인 유지 쿠키 
+
+ImgBoardVO
+이미지 게시판
+private int bno// 번호
+private String title// 제목
+private String content// 내용
+private String writer// 작성자
+private int origin// 원글번호
+private int depth// 답글표현
+private int seq// 답글정렬순서
+private Date regdate// 등록일
+private Date updatedate// 수정일
+private int viewcnt// 조회수
+private String showboard// 삭제유무
+private int uno// 작성자
+private String[] files// 첨부파일경로와 이름 목록
+private int commentCnt // 전체댓글의개수
+
+
+BoardVO
+공지 게시판
+private int bno// 번호
+private String title// 제목
+private String content// 내용
+private String writer// 작성자
+private int origin// 원글번호
+private int depth// 답글표현
+private int seq// 답글정렬순서
+private Date regdate// 등록일
+private Date updatedate// 수정일
+private int viewcnt// 조회수
+private String showboard// 삭제유무
+private int uno// 작성자
+private String[] files// 첨부파일경로와 이름 목록
+private int commentCnt // 전체댓글의개수
+
+
+ImgCommentVO
+이미지 게시판 코멘트 정보
+private int cno; // 코멘트 번호
+private int bno; // 원본 게시글 번호
+private String commentText; // 코멘트 내용
+private String commentAuth; // 코멘트 작성자
+private Date regdate; // 코멘트 작성일
+private Date updatedate; // 코멘트 수정일
+private int uno; // 회원번호 
+
+BoardCommentVO
+공지 게시판 코멘트 정보
+private int cno; // 코멘트 번호
+private int bno; // 원본 게시글 번호
+private String commentText; // 코멘트 내용
+private String commentAuth; // 코멘트 작성자
+private Date regdate; // 코멘트 작성일
+private Date updatedate; // 코멘트 수정일
+private int uno; // 회원번호 
+
+FileAttach
+파일 정보
+fullname // 파일 이름 
+bno  // 파일이 등록된 게시글 번호
+regdate  // 파일 등록일

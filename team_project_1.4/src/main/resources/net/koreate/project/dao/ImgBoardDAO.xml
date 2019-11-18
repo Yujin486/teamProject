@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.koreate.project.dao.ImgBoardDAO">
+	<update id="updateOrigin">
+		UPDATE img_board SET origin = LAST_INSERT_ID()
+		WHERE bno = LAST_INSERT_ID()
+	</update>
+	
+	<insert id="register" parameterType="net.koreate.project.vo.ImgBoardVO">
+		INSERT INTO img_board(title, content, writer, uno, locForm, profileFile)
+		VALUES(#{title},#{content},#{writer},#{uno}, #{locForm}, #{profileFile}) 
+	</insert>
+	
+	<insert id="addAttach" parameterType="java.lang.String">
+		INSERT INTO img_attach(fullName, bno) 
+		VALUES(#{fullName}, LAST_INSERT_ID())
+	</insert>
+	
+	
+	
+	<select id="getAttach" parameterType="int" resultType="string">
+		SELECT fullName FROM img_attach 
+		WHERE bno = #{bno} ORDER BY regdate DESC
+	</select>
+	<!-- 
+	<select id="profileAttach" parameterType="int" resultType="string">
+		SELECT fullName FROM img_attach 
+		WHERE bno = #{bno} ORDER BY regdate ASC 
+		limit 1
+	</select> -->
+	
+	 	<select id="profileAttach" parameterType="int" resultType="string">
+		SELECT fullName FROM img_attach 
+		WHERE bno = #{bno} ORDER BY regdate DESC
+		limit 1
+	</select>
+	 
+		<!-- 첨부파일 삭제 -->
+	<delete id="deleteAttach" parameterType="int">
+		DELETE FROM img_attach WHERE bno = #{bno}	
+	</delete>
+	
+	<insert id="replaceAttach" parameterType="java.util.Map">
+		INSERT INTO img_attach(fullname,bno) 
+		VALUES(#{fullName}, #{bno})
+	</insert>
+	<select id="listCriteria" resultType="net.koreate.project.vo.ImgBoardVO">
+		SELECT * FROM img_board
+		<include refid="search"></include>
+		ORDER BY bno DESC
+		limit #{pageStart}, #{perPageNum}
+	</select>
+	
+	<select id="listAll" resultType="net.koreate.project.vo.ImgBoardVO">
+		SELECT * FROM img_board 
+		<include refid="search"></include>
+		ORDER BY bno DESC
+	</select>
+	
+
+	<select id="listCount" resultType="int">
+		SELECT count(*) FROM img_board
+		<include refid="search"></include>
+	</select>
+
+	
+	<update id="updateCnt" parameterType="int">
+		UPDATE img_board SET viewcnt = viewcnt + 1 
+		WHERE bno = #{bno}
+	</update>
+	
+	<select id="view" parameterType="int" resultType="net.koreate.project.vo.ImgBoardVO">
+		SELECT * FROM  
+		img_board 
+		WHERE bno = #{bno}
+	</select>
+	
+	<!-- 이미지 게시글 삭제 -->
+	<delete id="delete" parameterType="int">
+		DELETE FROM img_board WHERE bno = #{bno}
+	</delete>
+	
+
+	
+	<!-- 게시물 정보 수정 -->
+	<update id="update" parameterType="net.koreate.project.vo.ImgBoardVO">
+		UPDATE img_board SET 
+			title = #{title}, 
+			content = #{content}, 
+			writer = #{writer},
+			profileFile = #{profileFile},
+			updatedate = now()
+		WHERE bno = #{bno}	
+	</update>
+	
+	
+
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">
+				WHERE title LIKE CONCAT('%',#{keyword},'%') 
+			</if>
+			<if test="searchType == 'c'.toString()">
+				WHERE content LIKE CONCAT('%',#{keyword},'%') 
+			</if>
+			<if test="searchType == 'w'.toString()">
+				WHERE WRITER LIKE CONCAT('%',#{keyword},'%') 
+			</if>
+			<if test="searchType == 'tc'.toString()">
+				WHERE title LIKE CONCAT('%',#{keyword},'%') 
+				OR content LIKE CONCAT('%',#{keyword},'%')
+			</if>
+			<if test="searchType == 'cw'.toString()">
+				WHERE writer LIKE CONCAT('%',#{keyword},'%') 
+				OR content LIKE CONCAT('%',#{keyword},'%')
+			</if>
+			<if test="searchType == 'tcw'.toString()">
+				WHERE title LIKE CONCAT('%',#{keyword},'%') 
+				OR content LIKE CONCAT('%',#{keyword},'%')
+				OR writer LIKE CONCAT('%',#{keyword},'%')
+			</if>
+		</if>
+	</sql>
+
+
+</mapper>

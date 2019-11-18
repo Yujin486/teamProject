@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="net.koreate.project.dao.MemberDAO">
+	<resultMap type="net.koreate.project.vo.MemberVO" id="memberMap">
+		<id property="u_id" column="u_id" />
+		<result property="u_no" column="u_no" />
+		<result property="u_id" column="u_id" />
+		<result property="u_pw" column="u_pw" />
+		<result property="u_phone" column="u_phone" />
+		<result property="u_birth" column="u_birth" />
+		<result property="u_name" column="u_name" />
+		<result property="u_addr" column="u_addr" />
+		<result property="u_addr_detail" column="u_addr_detail" />
+		<result property="u_addr_post" column="u_addr_post" />
+		<result property="u_point" column="u_point" />
+		<result property="u_info" column="u_info" />
+		<result property="u_date" column="u_date" />
+		<result property="u_visit_date" column="u_visit_date" />
+		<result property="u_withdraw" column="u_withdraw" />
+		<result property="u_category" column="u_category" />
+		<result property="u_pwChange" column="u_pwChange" />
+		<collection property="authList" resultMap="authMap" />
+	</resultMap>
+	
+	<resultMap type="net.koreate.project.vo.AuthVO" id="authMap">
+		<result property="u_id" column="u_id" />
+		<result property="auth" column="auth" />
+	</resultMap>
+	
+	<select id="read" parameterType="java.lang.String" resultMap="memberMap">
+		SELECT mem.*, auth FROM user_member mem
+		LEFT OUTER JOIN user_member_auth mauth ON mem.u_id = mauth.u_id
+		WHERE mem.u_id = #{username}
+	</select>
+	
+	<select id="getMemberBYId" resultType="net.koreate.project.vo.MemberVO">
+		SELECT * FROM user_member WHERE u_id = #{u_id}
+	</select>
+	<insert id="join" parameterType="net.koreate.project.vo.MemberVO">
+		INSERT INTO user_member(u_id, u_pw, u_phone, u_birth, u_name, u_addr, u_addr_detail, u_addr_post)
+		VALUES(#{u_id}, #{u_pw} , #{u_phone} ,#{u_birth}, #{u_name},#{u_addr}, #{u_addr_detail}, #{u_addr_post})
+	</insert>
+	
+	<insert id="addAuth">
+		INSERT INTO user_member_auth(u_id, auth) VALUES(#{u_id}, 'ROLE_USER')
+	</insert>
+	
+	<insert id="naverJoin" parameterType="java.util.Map">
+		INSERT INTO user_member(u_id, u_pw, u_phone, u_name, u_birth, u_category, u_pwChange) VALUES(#{sns_id}, #{sns_pw}, '01000000000', #{sns_name} , #{sns_birth}, #{sns_category}, #{sns_pwChange})
+	</insert>
+	
+	<update id="updateVisitDate" parameterType="java.lang.String">
+		UPDATE user_member SET u_visit_date = now() WHERE u_id = #{u_id}
+	</update>
+	
+	<sql id="search">
+		<if test="keyword != null">
+			<if test="searchType == 'b'.toString()">
+				WHERE u_no = #{keyword}
+			</if>
+			<if test="searchType == 'i'.toString()">
+				WHERE user_member.u_id = #{keyword}
+			</if>
+			<if test="searchType == 'm'.toString()">
+				WHERE u_name = #{keyword}
+			</if>
+			<if test="searchType == 'w'.toString()">
+				WHERE u_withdraw = #{keyword}
+			</if>
+		</if>
+	</sql>
+	
+	<select id="getMemberList" resultMap="memberMap">
+		SELECT user_member.*, auth
+		FROM user_member
+		LEFT OUTER JOIN user_member_auth mauth ON user_member.u_id = mauth.u_id
+		<include refid="search"></include>
+		ORDER BY u_no DESC limit #{pageStart}, #{perPageNum}
+	</select>
+	
+	<update id="mngtDeleteYN" parameterType="net.koreate.project.vo.AuthVO">
+		UPDATE user_member SET u_withdraw = #{u_withdraw} WHERE u_id = #{u_id}
+	</update>
+	
+	<update id="deleteYN" parameterType="net.koreate.project.vo.MemberVO">
+		UPDATE user_member SET
+		u_withdraw = 'y' 
+		WHERE u_no = #{u_no}
+	</update>
+	
+	<select id="getAuthList" resultType="net.koreate.project.vo.AuthVO">
+		SELECT * FROM user_member_auth WHERE u_id = #{u_id}
+	</select>
+	
+	<delete id="deleteAuth" parameterType="net.koreate.project.vo.AuthVO">
+		DELETE FROM user_member_auth WHERE u_id=#{u_id} AND auth = #{auth}
+	</delete>
+	
+	<insert id="insertMemberAuth" parameterType="net.koreate.project.vo.AuthVO">
+		INSERT INTO user_member_auth(u_id, auth) VALUES(#{u_id}, #{auth})
+	</insert>
+	
+	<select id="memberCount" resultType="int">
+		SELECT count(*) FROM user_member
+		<include refid="search"></include>
+	</select>
+	
+	<select id="getMember" resultMap="memberMap" parameterType="java.lang.String">
+		SELECT mem.*, auth FROM user_member mem
+		LEFT OUTER JOIN user_member_auth mauth ON mem.u_id = mauth.u_id
+		WHERE mem.u_id = #{username}
+	</select>
+	
+	<update id="profileModify" parameterType="net.koreate.project.vo.MemberVO">
+		UPDATE user_member SET
+		u_phone= #{u_phone} , u_birth= #{u_birth}, u_name = #{u_name},
+		u_addr = #{u_addr}, u_addr_detail = #{u_addr_detail}, u_addr_post = #{u_addr_post} 
+		WHERE u_no = #{u_no}
+	</update>
+	
+	<update id="passwordModify" parameterType="net.koreate.project.vo.MemberVO">
+		UPDATE user_member SET
+		u_pw = #{u_pw}, u_pwChange = '1' 
+		WHERE u_no = #{u_no}
+	</update>
+</mapper>

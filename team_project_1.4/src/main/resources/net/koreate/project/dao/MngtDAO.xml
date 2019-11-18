@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.koreate.project.dao.MngtDAO">
+	
+	<select id="getListById" resultType="net.koreate.project.vo.ListDTO">
+		SELECT * 
+		FROM (SELECT boardName, bno, title, viewcnt, updatedate, showboard FROM re_board WHERE u_no=#{u_no} and showboard='y'
+			UNION
+		SELECT boardName, bno, title, viewcnt, updatedate, showboard FROM img_board WHERE uno=#{u_no}
+		UNION
+		SELECT boardName, bno, title, viewcnt, updatedate, showboard FROM qna_board WHERE u_no=#{u_no} and showboard='y') AS board 
+		<include refid="search"></include>
+		ORDER BY board.updatedate DESC limit #{cri.pageStart}, #{cri.perPageNum}
+	</select>
+	
+	<sql id="search">
+		<if test="cri.keyword != null">
+			WHERE title LIKE CONCAT('%', #{cri.keyword},'%')
+		</if>
+	</sql>
+	
+	<select id="listReplyCount" resultType="int">
+		SELECT count(*) 
+		FROM (SELECT boardName, bno, title, viewcnt, updatedate, showboard FROM re_board WHERE u_no=#{u_no} and showboard='y'
+			UNION
+		SELECT boardName, bno, title, viewcnt, updatedate, showboard FROM img_board WHERE uno=#{u_no}
+		UNION
+		SELECT boardName, bno, title, viewcnt, updatedate, showboard FROM qna_board WHERE u_no=#{u_no}) c
+		<include refid="search"></include>
+	</select>
+	
+</mapper>

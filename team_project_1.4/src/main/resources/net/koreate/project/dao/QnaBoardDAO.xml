@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.koreate.project.dao.QnaBoardDAO">
+
+	<insert id="register" parameterType="net.koreate.project.vo.RegistDTO">
+		INSERT INTO qna_board(title, content, writer, password, u_no) VALUES(#{title}, #{content}, #{writer}, #{password}, #{u_no})
+	</insert>
+	
+	<update id="updateOrigin">
+		UPDATE qna_board SET origin = LAST_INSERT_ID() WHERE bno = LAST_INSERT_ID()
+	</update>
+	
+	<insert id="addAttach" parameterType="java.lang.String">
+		INSERT INTO qna_attach(fullname, bno) VALUES(#{fullname}, LAST_INSERT_ID())
+	</insert>
+	
+	<sql id="search">
+		<if test="keyword != null">
+			WHERE title LIKE CONCAT('%', #{keyword}, '%')
+		</if>
+	</sql>
+	
+	<sql id="search2">
+		<if test="keyword != null">
+			and title LIKE CONCAT('%', #{keyword}, '%')
+		</if>
+	</sql>
+	
+	<select id="listReply" resultType="net.koreate.project.vo.BoardVO">
+		SELECT * FROM qna_board 
+		<include refid="search"></include>
+		ORDER BY origin DESC, seq ASC limit #{pageStart}, #{perPageNum}
+	</select>
+	
+	<select id="listReplyCount" resultType="int">
+		SELECT count(*) FROM qna_board
+		<include refid="search"></include>
+	</select>
+	
+	<select id="updateCnt" parameterType="int">
+		UPDATE qna_board SET viewcnt = viewcnt+1 WHERE bno = #{bno}
+	</select>
+	
+	<select id="readReply" parameterType="int" resultType="net.koreate.project.vo.BoardVO">
+		SELECT * FROM qna_board WHERE bno = #{bno}
+	</select>
+	
+	<select id="listAll" resultType="net.koreate.project.vo.BoardVO">
+		SELECT * FROM qna_board 
+		WHERE showboard = 'y'
+		<include refid="search2"></include>
+		ORDER BY origin DESC, seq ASC
+	</select>
+	
+	<select id="pwCheck" resultType="String">
+		SELECT password FROM qna_board WHERE bno = #{bno}
+	</select>
+	
+	<select id="getAttach" parameterType="int" resultType="string">
+		SELECT fullname FROM qna_attach WHERE bno = #{bno} ORDER BY regdate DESC
+	</select>
+	
+	<update id="update" parameterType="net.koreate.project.vo.BoardVO">
+		UPDATE qna_board SET title=#{title}, content=#{content}, updatedate=now() WHERE bno=#{bno}
+	</update>
+	
+	<delete id="deleteAttach" parameterType="int">
+		DELETE FROM qna_attach WHERE bno=#{bno} 
+	</delete>
+	
+	<insert id="replaceAttach" parameterType="java.util.Map">
+		INSERT INTO qna_attach(fullname, bno) VALUES(#{fullName}, #{bno})
+	</insert>
+	
+	<update id="delete" parameterType="int">
+		UPDATE qna_board SET showboard = 'n' WHERE bno = #{bno}
+	</update>
+	
+	<update id="updateReply" parameterType="net.koreate.project.vo.BoardVO">
+		UPDATE qna_board SET seq = seq+1 WHERE origin = #{origin} AND seq > #{seq}
+	</update>
+	
+	<insert id="replyRegister" parameterType="net.koreate.project.vo.BoardVO">
+		INSERT INTO qna_board(title, content, writer, password, origin, depth, seq, u_no)
+		VALUES(#{title}, #{content}, #{writer}, #{password}, #{origin}, #{depth}, #{seq}, #{u_no})
+	</insert>
+	
+</mapper>

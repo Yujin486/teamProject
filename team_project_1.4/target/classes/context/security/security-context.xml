@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="customUserService" class="net.koreate.project.security.CustomUserDatailService" />
+	
+	<bean id="customLoginSuccess" class="net.koreate.project.security.CustomLoginSuccessHandler" />
+	
+	<bean id="accessDenied" class="net.koreate.project.security.CustomAccessDeniedHandler"></bean>
+	
+<!-- 	<bean id="loginFailureHandler" class="net.koreate.project.security.CustomLoginFailHandler"/>-->	<!-- 패스워드 암호화 -->
+	
+	<bean id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+	
+	<security:http pattern="/resources/**" security="none" />
+	
+	<security:http auto-config="true">
+		<security:access-denied-handler ref="accessDenied"/>
+		<security:intercept-url access="hasRole('ROLE_MASTER')" pattern="/reboard/register"/>
+		<security:intercept-url access="hasRole('ROLE_MASTER')" pattern="/reboard/modifyPage"/>
+		<security:intercept-url access="hasRole('ROLE_MASTER')" pattern="/reboard/remove"/>
+		<security:intercept-url access="hasRole('ROLE_MASTER')" pattern="/reboard/replyRegister"/>
+		<security:intercept-url access="hasRole('ROLE_MASTER')" pattern="/qnaboard/replyRegister"/>
+		<security:intercept-url access="hasAnyRole('ROLE_MASTER, ROLE_USER')" pattern="/qnaboard/pwConfirmPage"/>
+		<security:intercept-url access="hasAnyRole('ROLE_MASTER, ROLE_USER')" pattern="/qnaboard/register"/>
+		<security:intercept-url access="hasRole('ROLE_MASTER')" pattern="/imgBoard/imageRegister"/>
+		<security:intercept-url access="hasRole('ROLE_MASTER')" pattern="/imgBoard/imageModifyPage"/>
+		<security:intercept-url access="hasAnyRole('ROLE_MASTER, ROLE_USER')" pattern="/comments/add"/>
+		<security:intercept-url access="hasRole('ROLE_USER')" pattern="/user/myPage"/>
+		<security:intercept-url access="hasRole('ROLE_USER')" pattern="/user/profileModify"/>
+	
+	<!-- csrf 해제	 -->
+	<!-- <security:csrf disabled="true"/> -->
+	<!-- authentication-failure-handler-ref="loginFailureHandler" -->
+	<security:form-login 
+		authentication-success-handler-ref="customLoginSuccess" 
+		login-page="/user/login" 
+		login-processing-url="/user/login" 
+		password-parameter="u_pw" 
+		username-parameter="u_id" />
+	
+	<security:remember-me token-validity-seconds="604800" remember-me-parameter="userCookie" remember-me-cookie="userCookie"/>
+	 
+	 <security:logout logout-url="/user/logout" logout-success-url="/user/login" delete-cookies="userCookie, JSESSIONID"/>
+	 
+	 <security:intercept-url pattern="/popup" access="authenticated"/>
+	 
+	</security:http>
+	
+	<security:authentication-manager>
+		 <security:authentication-provider user-service-ref="customUserService">
+		    <security:password-encoder ref="bcryptPasswordEncoder"/> 
+		</security:authentication-provider> 
+	</security:authentication-manager>
+</beans>
